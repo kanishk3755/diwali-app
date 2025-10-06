@@ -2,24 +2,19 @@ name: CI/CD Pipeline 🚀 (Test & Deploy)
 
 # Controls when the workflow should run
 on:
-  # Triggers the workflow on pushes to the 'main' branch
   push:
     branches: [ main ]
-  
-  # Allows you to run this workflow manually from the Actions tab
   workflow_dispatch:
 
 # Sets necessary permissions for deployment
 permissions:
-  contents: write # Required for 'gh-pages' to commit and push the build files
-  pages: write    # Required for deployment status update
-  id-token: write # Required for secure OIDC authentication
+  contents: write 
+  pages: write    
+  id-token: write 
 
 # A sequence of jobs
 jobs:
-  # -----------------------------------------------------------------
   # 1. Test Job: Installs dependencies and runs all tests
-  # -----------------------------------------------------------------
   test:
     name: Run Unit Tests
     runs-on: ubuntu-latest
@@ -30,28 +25,21 @@ jobs:
       - name: Setup Node.js Environment
         uses: actions/setup-node@v4
         with:
-          node-version: '20' # Recommended Node version
-          cache: 'npm'       # Cache dependencies for faster runs
+          node-version: '20' 
+          cache: 'npm'
 
       - name: Install Dependencies
         run: npm install
 
       - name: Run Tests
-        # The '--ci' flag ensures a clean exit status based on test results.
-        # This step must succeed for the 'deploy' job to start.
         run: npm run test -- --ci --watchAll=false
-        # Note: If your test script is just 'npm test', you can simplify to 'npm test -- --ci...'
 
-  # -----------------------------------------------------------------
   # 2. Deploy Job: Only runs if the 'test' job succeeds
-  # -----------------------------------------------------------------
   deploy:
     name: Deploy to GitHub Pages
-    needs: test # CRITICAL: This job will only run if the 'test' job passes
+    needs: test 
     runs-on: ubuntu-latest
 
-    # This environment configuration is optional but highly recommended
-    # to track deployments in the Environments tab of your repo.
     environment:
       name: github-pages
       url: ${{ steps.deployment.outputs.page_url }}
@@ -64,21 +52,22 @@ jobs:
         uses: actions/setup-node@v4
         with:
           node-version: '20'
-          cache: 'npm' # Use the cache key set in the test job
+          cache: 'npm'
           
       - name: Install Dependencies
-        # Must install again in this job to have access to gh-pages and build tools
         run: npm install
 
-      - name: Run gh-pages Deployment Script
-        # This script should be your pre-configured "deploy" script in package.json.
-        # It handles the 'npm run build' (predeploy) and then pushes the /build folder to the 'gh-pages' branch.
+      - name: Run gh-pages Deployment Script (Authenticated)
         run: |
-          # Set Git user details for the commit created by gh-pages
+          # 1. Set Git user details for the deploy commit created by gh-pages
           git config user.name "github-actions[bot]"
           git config user.email "github-actions[bot]@users.noreply.github.com"
           
-          npm run deploy
+          # 2. Construct the authenticated repository URL using the GITHUB_TOKEN
+          REPO_URL="https://x-access-token:${{ secrets.GITHUB_TOKEN }}@github.com/${{ github.repository }}.git"
+          
+          # 3. Run the deploy script, passing the authenticated URL via the --repo flag
+          npm run deploy -- -r $REPO_URL
           
       - name: Deployment Finished (for logging and URL output)
         id: deployment
