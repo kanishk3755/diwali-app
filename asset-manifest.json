@@ -1,0 +1,15 @@
+{
+  "files": {
+    "main.css": "/diwali-app/static/css/main.651d8d4d.css",
+    "main.js": "/diwali-app/static/js/main.f908bbca.js",
+    "static/js/453.ef704e2c.chunk.js": "/diwali-app/static/js/453.ef704e2c.chunk.js",
+    "index.html": "/diwali-app/index.html",
+    "main.651d8d4d.css.map": "/diwali-app/static/css/main.651d8d4d.css.map",
+    "main.f908bbca.js.map": "/diwali-app/static/js/main.f908bbca.js.map",
+    "453.ef704e2c.chunk.js.map": "/diwali-app/static/js/453.ef704e2c.chunk.js.map"
+  },
+  "entrypoints": [
+    "static/css/main.651d8d4d.css",
+    "static/js/main.f908bbca.js"
+  ]
+}
